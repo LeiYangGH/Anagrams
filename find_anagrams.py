@@ -1,56 +1,36 @@
-def read_file_lines(file):
-    with open(file, 'r', encoding='utf8', errors='ignore') as f:
-        return [l.strip() for l in f.readlines()]
-
-def isAnagram(str1, str2):
-    str1_list = list(str1)
-    str1_list.sort()
-    str2_list = list(str2)
-    str2_list.sort()
-
-    return (str1_list == str2_list)
-
-
 from collections import defaultdict
+import datetime
 
-def load_words(filename='/usr/share/dict/american-english'):
+
+def load_words(filename):
     with open(filename) as f:
         for word in f:
-            yield word.rstrip()
-
-def get_anagrams(source):
-    d = defaultdict(list)
-    for word in source:
-        key = "".join(sorted(word))
-        d[key].append(word)
-    return d
-
-def print_anagrams(word_source):
-    d = get_anagrams(word_source)
-    for key, anagrams in d.iteritems():
-        if len(anagrams) > 1:
-            print(key, anagrams)
-
-word_source = load_words()
-print_anagrams(word_source)
+            yield word.strip()
 
 
-from collections import Counter, defaultdict
-
-def anagram(words):
-    anagrams = defaultdict(list)
+def build_signature_words_dict(words):
+    signature_words = defaultdict(list)
     for word in words:
-        histogram = tuple(Counter(word).items()) # build a hashable histogram
-        anagrams[histogram].append(word)
-    return list(anagrams.values())
-
-keywords = ("hi", "hello", "bye", "helol", "abc", "cab",
-                "bac", "silenced", "licensed", "declines")
-
-print(anagram(keywords))
+        signature = ''.join(sorted(word))  # if ignore case, use word.lower()
+        signature_words[signature].append(word)
+    return signature_words
 
 
+def show_anagrams(signature_words):
+    anagrams_lists = [anagrams for anagrams in signature_words.values() if len(anagrams) > 1]
+    for anagrams in sorted(anagrams_lists, key=lambda lst: len(lst), reverse=True):
+        print(anagrams)
+
+
+def read_find_show_anagrams(filename='/usr/dict/words'):
+    start_time = datetime.datetime.now()
+    words = load_words(filename)
+    # words = set(words) #if there are duplicates in dictionary
+    signature_words = build_signature_words_dict(words)
+    show_anagrams(signature_words)
+    end_time = datetime.datetime.now()
+    print('time used:{}'.format((end_time-start_time).microseconds))
 
 
 if __name__ == "__main__":
-    pass
+    read_find_show_anagrams(filename='words.txt')
