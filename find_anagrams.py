@@ -1,5 +1,6 @@
 from collections import defaultdict
 import datetime
+from collections import Counter
 
 
 def load_words(filename):
@@ -11,7 +12,8 @@ def load_words(filename):
 def build_signature_words_dict(words):
     signature_words = defaultdict(list)
     for word in words:
-        signature = ''.join(sorted(word))  # if ignore case, use word.lower()
+        # signature = ''.join(sorted(word))  # if ignore case, use word.lower()
+        signature = tuple(Counter(word))  # seems faster
         signature_words[signature].append(word)
     return signature_words
 
